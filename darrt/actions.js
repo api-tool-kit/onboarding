@@ -7,6 +7,7 @@
 
 var component = require('./lib/component');
 var data = require('./data');
+var utils = require('./lib/utils');
 
 /***************************************** 
 // actions for the onboarding service
@@ -212,8 +213,20 @@ module.exports.writeStatus = function(req,res) {
   var id,body;
   return new Promise(function(resolve,reject){
     id = req.params.id||null;
-    body = req.body||null;
+    body = req.body||nulli;
+    console.log(body);
     if(id!==null && body!==null) {
+
+       var params = {
+         scheme: "https",
+         host:   "jsonplaceholder.typicode.com",
+         method: "GET",
+         path:   "/todos/1"
+       };       
+       utils.httpRequest(params).then(function(body) {
+         console.log(body);
+       });
+
        resolve(component(
          {name:'onboarding',
           action:'update',
