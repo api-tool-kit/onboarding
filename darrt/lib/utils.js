@@ -368,7 +368,6 @@ function tagFilter(collection, filter) {
 exports.httpRequest = function(params, postData) {
   if(params.scheme && params.scheme==='https') {
     return new Promise(function(resolve, reject) {
-      console.log("https!");
       var req = https.request(params, function(res) {
         // reject on bad status
         if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -403,7 +402,6 @@ exports.httpRequest = function(params, postData) {
   }
   else {
    return new Promise(function(resolve, reject) {
-      console.log("http!");
       var req = http.request(params, function(res) {
         // reject on bad status
         if (res.statusCode < 200 || res.statusCode >= 300) {

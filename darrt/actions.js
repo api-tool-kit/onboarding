@@ -214,18 +214,11 @@ module.exports.writeStatus = function(req,res) {
   return new Promise(function(resolve,reject){
     id = req.params.id||null;
     body = req.body||nulli;
-    console.log(body);
     if(id!==null && body!==null) {
 
-       var params = {
-         scheme: "https",
-         host:   "jsonplaceholder.typicode.com",
-         method: "GET",
-         path:   "/todos/1"
-       };       
-       utils.httpRequest(params).then(function(body) {
-         console.log(body);
-       });
+       if(body.status==="closed") {
+         writeToServices(id);
+       }
 
        resolve(component(
          {name:'onboarding',
@@ -253,4 +246,95 @@ module.exports.remove = function(req,res) {
       reject({error:"invalid id"});
     }
   });
+}
+
+/********************************************
+ Handle writing to the other services
+ ********************************************/
+function writeToServices(id) {
+  var pCompany, pAccount, pActivity;
+  var p, item, coll;
+
+  // start by getting the current onboarding rec
+  p = component({name:'onboarding',action:'item',id:id});
+  p.then(function(coll) {
+    item = coll[0]||{};
+    //console.log(item);
+ 
+    // define company write
+    pCompany = new Promise(function(resolve,reject) {
+      var params = {
+        host:   "localhost",
+        port: 8484,
+        method: "POST",
+        path:   "/",
+        headers: {"content-type" : "application/json"}
+      };       
+      var body = {
+        id : item.companyId||"",
+        companyName : item.companyName||"",
+        email : item.email||"",
+        streetAddress : item.streetAddress||"",
+        city : item.city||"",
+        stateProvince : item.stateProvince||"",
+        postalCode : item.postalCode||"",
+        country : item.country||"",
+        telephone : item.telephone||"",
+        status : "active"
+      }
+      // echo results for debugging
+      utils.httpRequest(params,JSON.stringify(body)).then(function(results) {
+        //console.log(JSON.stringify(results));
+      });
+    });
+
+    // define account write 
+    pAccount = new Promise(function(resolve,reject) {
+      var params = {
+        port: 8282,
+        host:   "localhost",
+        method: "POST",
+        path:   "/",
+        headers: {"content-type" : "application/json"}
+      };       
+      var body = {
+        id : item.accountId||"",
+        companyId : item.companyId||"",
+        division : item.division||"",
+        spendingLimit : item.spendingLimit||"",
+        discountPercentage : item.discountPercentage||"",
+        status : "active"
+      };
+      utils.httpRequest(params, JSON.stringify(body)).then(function(results) {
+        //console.log(results);
+      });
+    });
+
+    // define activity write
+    pActivity = new Promise(function(resolve,reject) {
+      var params = {
+        port:  8686,
+        host:   "localhost",
+        method: "POST",
+        path:   "/",
+        headers: {"content-type" : "application/json"}
+      };       
+      var body = {
+        companyId : item.companyId||"",
+        accountId : item.accountId||"",
+        activityType : item.activityType||"",
+        dateScheduled : item.dateScheduled||"",
+        notes : item.notes||"",
+        status : "active"
+      };
+
+      utils.httpRequest(params, JSON.stringify(body)).then(function(results) {
+        //console.log(results);
+      });
+    });
+
+    // execute the requests in parallell
+    return Promise.all([pCompany, pAccount, pActivity]);
+  });
+
 }
