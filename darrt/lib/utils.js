@@ -365,8 +365,10 @@ function tagFilter(collection, filter) {
   return rtn;
 }
 
+
+// general http request promise
 exports.httpRequest = function(params, postData) {
-  if(params.scheme && params.scheme==='https') {
+  if(params.scheme && params.scheme==='https:' || params.protocol && params.protocol==='https:') {
     return new Promise(function(resolve, reject) {
       var req = https.request(params, function(res) {
         // reject on bad status
@@ -381,7 +383,12 @@ exports.httpRequest = function(params, postData) {
         // resolve on end
         res.on('end', function() {
           try {
-            body = JSON.parse(Buffer.concat(body).toString());
+            if(params.JSON===true) {
+              body = JSON.parse(Buffer.concat(body).toString());
+            }
+            else {
+              body = Buffer.concat(body).toString();
+            }
           } catch(e) {
             reject(e);
           }
@@ -415,7 +422,12 @@ exports.httpRequest = function(params, postData) {
         // resolve on end
         res.on('end', function() {
           try {
-            body = JSON.parse(Buffer.concat(body).toString());
+            if(params.JSON===true) {
+              body = JSON.parse(Buffer.concat(body).toString());
+            }
+            else {
+              body = Buffer.concat(body).toString();
+            }
           } catch(e) {
             reject(e);
           }
@@ -435,8 +447,6 @@ exports.httpRequest = function(params, postData) {
     });
   }
 }
-
-
 
 // EOF
 

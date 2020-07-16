@@ -215,7 +215,8 @@ module.exports.writeStatus = function(req,res) {
     id = req.params.id||null;
     body = req.body||nulli;
     if(id!==null && body!==null) {
-
+ 
+       // if status===closed, write to external services
        if(body.status==="closed") {
          writeToServices(id);
        }
@@ -259,7 +260,6 @@ function writeToServices(id) {
   p = component({name:'onboarding',action:'item',id:id});
   p.then(function(coll) {
     item = coll[0]||{};
-    //console.log(item);
  
     // define company write
     pCompany = new Promise(function(resolve,reject) {
@@ -282,10 +282,8 @@ function writeToServices(id) {
         telephone : item.telephone||"",
         status : "active"
       }
-      // echo results for debugging
-      utils.httpRequest(params,JSON.stringify(body)).then(function(results) {
-        //console.log(JSON.stringify(results));
-      });
+      // commit the write
+      utils.httpRequest(params,JSON.stringify(body));
     });
 
     // define account write 
@@ -305,9 +303,8 @@ function writeToServices(id) {
         discountPercentage : item.discountPercentage||"",
         status : "active"
       };
-      utils.httpRequest(params, JSON.stringify(body)).then(function(results) {
-        //console.log(results);
-      });
+      // commit the write
+      utils.httpRequest(params, JSON.stringify(body));
     });
 
     // define activity write
@@ -327,13 +324,11 @@ function writeToServices(id) {
         notes : item.notes||"",
         status : "active"
       };
-
-      utils.httpRequest(params, JSON.stringify(body)).then(function(results) {
-        //console.log(results);
-      });
+      // commit the write
+      utils.httpRequest(params, JSON.stringify(body));
     });
 
-    // execute the requests in parallell
+    // execute the requests in parallel
     return Promise.all([pCompany, pAccount, pActivity]);
   });
 

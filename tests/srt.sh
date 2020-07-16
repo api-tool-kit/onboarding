@@ -25,13 +25,11 @@ date
 
 ###################################################
 # manage input file
-infile=""
+infile="srt-list.txt"
 outfile=""
 
-if [ -z "$1" ]
+if [ ! -z "$1" ]
 then
-  infile="srt-list.txt"
-else
   infile="$1"
 fi
 

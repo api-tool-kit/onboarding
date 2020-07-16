@@ -1,8 +1,9 @@
-# onboarding requests
+# onboarding aggregate -- testing external writes
 
-http://localhost:8080/
-http://localhost:8080/wip/
-http://localhost:8080/wip/filter?status=active
+# remove in case it already exists
+http://localhost:8080/wip/q1w2e3r4 -X DELETE
+http://localhost:8484/w2e3r4t5 -X DELETE
+http://localhost:8282/3e4r5t6y -X DELETE
 
 # create a wip record
 http://localhost:8080/wip/ -X POST -d id=q1w2e3r4&status=pending
@@ -29,11 +30,20 @@ http://localhost:8080/wip/q1w2e3r4/status
 # approve it
 http://localhost:8080/wip/q1w2e3r4/status -X PATCH -d status=active
 
-# close it out
+# close it out (this should kick off the external writes
 http://localhost:8080/wip/q1w2e3r4/status -X PATCH -d status=closed
 
-# remove it (might not work)
-# http://localhost:8080/wip/q1w2e3r4 -X DELETE
+# check for external writes
+http://localhost:8484/w2e3r4t5
+http://localhost:8282/3e4r5t6y
+http://localhost:8686/filter/?companyId=w2e3r4t5
 
+# remove the evidence 
+http://localhost:8080/wip/q1w2e3r4 -X DELETE
+http://localhost:8484/w2e3r4t5 -X DELETE
+http://localhost:8282/3e4r5t6y -X DELETE
+
+#
 # EOF
+#
 
